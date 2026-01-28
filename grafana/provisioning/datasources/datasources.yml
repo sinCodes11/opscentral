@@ -7,10 +7,11 @@ datasources:
   # Prometheus - Primary metrics store
   - name: Prometheus
     type: prometheus
+    uid: prometheus
     access: proxy
     url: http://prometheus:9090
     isDefault: true
-    editable: false
+    editable: true
     jsonData:
       httpMethod: POST
       manageAlerts: true
@@ -19,25 +20,15 @@ datasources:
   # PostgreSQL - Alert history and compliance data
   - name: PostgreSQL
     type: postgres
+    uid: postgres
     url: postgres:5432
     database: opscentral
     user: opscentral
     secureJsonData:
-      password: ${POSTGRES_PASSWORD}
+      password: opscentral_dev_2026
     jsonData:
       sslmode: disable
       maxOpenConns: 10
       maxIdleConns: 5
       connMaxLifetime: 14400
-    editable: false
-
-  # OpsCentral API - JSON datasource for custom queries
-  - name: OpsCentral-API
-    type: marcusolsson-json-datasource
-    url: http://api:8000
-    access: proxy
-    jsonData:
-      httpHeaderName1: X-API-Key
-    secureJsonData:
-      httpHeaderValue1: ${API_KEY}
-    editable: false
+    editable: true
