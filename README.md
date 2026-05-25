@@ -1,8 +1,14 @@
 # OpsCentral - Unified SOC Dashboard
 
 <div align="center">
-  <img src="https://lottie.host/6f7b8e5a-1b2c-4d3e-8f9a-0b1c2d3e4f5g/radar_scan.gif" width="200" height="200" />
+  <img src="assets/logo.svg" width="200" height="200" />
 </div>
+
+<p align="center">
+  <a href="#"><img src="https://img.shields.io/badge/Lottie-dotLottie-ff3366?style=flat-square" alt="Lottie"></a>
+  <a href="#"><img src="https://img.shields.io/badge/FastAPI-API-00b4d8?style=flat-square" alt="FastAPI"></a>
+  <a href="#"><img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="License"></a>
+</p>
 
 A full-stack Security Operations Center (SOC) dashboard aggregating security alerts from SIEM/Splunk and OCI infrastructure metrics into a unified Grafana-based visualization platform.
 
@@ -230,6 +236,34 @@ Configure Grafana alerts for:
 - Splunk integration uses mock data (HEC integration pending)
 - Cost data simulated (OCI Cost Management API integration pending)
 - Single-node deployment only (no HA/clustering)
+
+## Lottie Animation Integration
+
+Monitor SOC metrics with animated dashboards via [dotLottie](https://dotlottie.io/):
+
+```html
+<dotlottie-wc
+  src="https://lottie.host/4db68bbd-31f6-4cd8-84eb-189de081159a/IGmMCqhzpt.lottie"
+  autoplay
+  loop
+></dotlottie-wc>
+<script type="module" src="https://unpkg.com/@lottiefiles/dotlottie-wc@latest/dist/dotlottie-wc.js"></script>
+```
+
+```bash
+npm install @lottiefiles/dotlottie-web
+```
+
+```js
+import { DotLottie } from '@lottiefiles/dotlottie-web'
+
+const player = new DotLottie({
+  canvas: document.getElementById('dashboard-canvas'),
+  src: '/animations/soc-dashboard.lottie',
+  autoplay: true,
+  loop: true,
+})
+```
 
 ## License
 

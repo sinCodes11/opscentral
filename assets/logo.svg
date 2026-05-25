@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0a0a1a"/>
+      <stop offset="100%" style="stop-color:#1a1a3e"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff3366"/>
+      <stop offset="100%" style="stop-color:#ff6b35"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="200" height="200" rx="32" fill="url(#bg)"/>
+  <g transform="translate(100,100)">
+    <!-- Radar rings -->
+    <circle cx="0" cy="0" r="65" fill="none" stroke="#ff3366" stroke-width="0.5" opacity="0.15"/>
+    <circle cx="0" cy="0" r="50" fill="none" stroke="#ff3366" stroke-width="0.5" opacity="0.2"/>
+    <circle cx="0" cy="0" r="35" fill="none" stroke="#ff3366" stroke-width="0.5" opacity="0.25"/>
+    <circle cx="0" cy="0" r="20" fill="none" stroke="#ff3366" stroke-width="0.5" opacity="0.3"/>
+    <!-- Scanning line -->
+    <line x1="0" y1="0" x2="65" y2="0" stroke="url(#accent)" stroke-width="2" filter="url(#glow)">
+      <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="3s" repeatCount="indefinite"/>
+    </line>
+    <!-- Scan wedge -->
+    <path d="M0,0 L65,0 A65,65 0 0,1 0,-65 Z" fill="url(#accent)" opacity="0.08">
+      <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="3s" repeatCount="indefinite"/>
+    </path>
+    <!-- Dashboard grid lines -->
+    <g opacity="0.06">
+      <line x1="-60" y1="-60" x2="60" y2="60" stroke="#ff3366" stroke-width="1"/>
+      <line x1="-60" y1="60" x2="60" y2="-60" stroke="#ff3366" stroke-width="1"/>
+    </g>
+    <!-- Alert indicators -->
+    <g filter="url(#glow)">
+      <circle cx="-30" cy="-25" r="3" fill="#00ff88">
+        <animate attributeName="opacity" values="1;0.3;1" dur="2s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="20" cy="-30" r="3" fill="#ffcc00">
+        <animate attributeName="opacity" values="1;0.3;1" dur="1.5s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="-15" cy="20" r="3" fill="#ff3366">
+        <animate attributeName="opacity" values="1;0.3;1" dur="1s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="35" cy="15" r="3" fill="#00ff88">
+        <animate attributeName="opacity" values="1;0.3;1" dur="2.5s" repeatCount="indefinite"/>
+      </circle>
+    </g>
+    <!-- Bar chart at bottom -->
+    <g opacity="0.4" transform="translate(-25,40)">
+      <rect x="0" y="-20" width="8" height="20" fill="#00ff88">
+        <animate attributeName="height" values="20;10;20" dur="2s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="-20;-10;-20" dur="2s" repeatCount="indefinite"/>
+      </rect>
+      <rect x="12" y="-30" width="8" height="30" fill="#ffcc00">
+        <animate attributeName="height" values="30;15;30" dur="1.5s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="-30;-15;-30" dur="1.5s" repeatCount="indefinite"/>
+      </rect>
+      <rect x="24" y="-15" width="8" height="15" fill="#ff3366">
+        <animate attributeName="height" values="15;25;15" dur="2.5s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="-15;-25;-15" dur="2.5s" repeatCount="indefinite"/>
+      </rect>
+      <rect x="36" y="-25" width="8" height="25" fill="#00b4d8">
+        <animate attributeName="height" values="25;12;25" dur="1.8s" repeatCount="indefinite"/>
+        <animate attributeName="y" values="-25;-12;-25" dur="1.8s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <!-- Center hub -->
+    <circle cx="0" cy="0" r="8" fill="#ff3366" opacity="0.15"/>
+    <circle cx="0" cy="0" r="4" fill="#ff3366" opacity="0.3"/>
+  </g>
+</svg>
