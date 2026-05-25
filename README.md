@@ -4,12 +4,6 @@
   <img src="assets/logo.svg" width="200" height="200" />
 </div>
 
-<p align="center">
-  <a href="#"><img src="https://img.shields.io/badge/Lottie-dotLottie-ff3366?style=flat-square" alt="Lottie"></a>
-  <a href="#"><img src="https://img.shields.io/badge/FastAPI-API-00b4d8?style=flat-square" alt="FastAPI"></a>
-  <a href="#"><img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="License"></a>
-</p>
-
 A full-stack Security Operations Center (SOC) dashboard aggregating security alerts from SIEM/Splunk and OCI infrastructure metrics into a unified Grafana-based visualization platform.
 
 ## Overview
