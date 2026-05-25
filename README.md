@@ -1,5 +1,9 @@
 # OpsCentral - Unified SOC Dashboard
 
+<div align="center">
+  <img src="https://lottie.host/6f7b8e5a-1b2c-4d3e-8f9a-0b1c2d3e4f5g/radar_scan.gif" width="200" height="200" />
+</div>
+
 A full-stack Security Operations Center (SOC) dashboard aggregating security alerts from SIEM/Splunk and OCI infrastructure metrics into a unified Grafana-based visualization platform.
 
 ## Overview
