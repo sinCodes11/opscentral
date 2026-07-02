@@ -1,7 +1,7 @@
 """Alert aggregation service for normalizing and deduplicating alerts."""
 
 from datetime import datetime, timedelta, timezone
-from typing import List, Optional
+from typing import List
 from hashlib import sha256
 
 import structlog

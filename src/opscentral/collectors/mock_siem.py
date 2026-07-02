@@ -2,7 +2,7 @@
 
 import random
 from datetime import datetime, timedelta, timezone
-from typing import List, Optional
+from typing import List
 
 import structlog
 

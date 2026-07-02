@@ -1,7 +1,7 @@
 """Cost API routes for OCI cost tracking and analysis."""
 
 from datetime import datetime, date, timezone
-from typing import List, Optional
+from typing import List
 
 from fastapi import APIRouter, Depends, Query
 from pydantic import BaseModel

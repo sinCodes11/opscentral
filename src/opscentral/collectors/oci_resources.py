@@ -1,7 +1,6 @@
 """OCI Resource collector for inventory management."""
 
 import asyncio
-from datetime import datetime, timezone
 from typing import Optional
 
 import structlog

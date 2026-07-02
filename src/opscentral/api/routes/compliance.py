@@ -1,6 +1,6 @@
 """Compliance API routes for security compliance tracking."""
 
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, Query
@@ -87,11 +87,13 @@ async def get_compliance_score(
     # Passed checks
     passed_checks = (
         await db.execute(
-            select(func.count(ComplianceCheck.id)).where(ComplianceCheck.passed == True)
+            select(func.count(ComplianceCheck.id)).where(ComplianceCheck.passed )
         )
     ).scalar() or 0
 
     failed_checks = total_checks - passed_checks
+
+    from sqlalchemy import Integer as sqlalchemy_types_Integer
 
     # Score by framework
     framework_query = select(
@@ -99,10 +101,6 @@ async def get_compliance_score(
         func.count(ComplianceCheck.id).label("total"),
         func.sum(func.cast(ComplianceCheck.passed, sqlalchemy_types_Integer)).label("passed"),
     ).group_by(ComplianceCheck.framework)
-
-    # Import needed for cast
-    from sqlalchemy import Integer as sqlalchemy_types_Integer
-
     framework_query = select(
         ComplianceCheck.framework,
         func.count(ComplianceCheck.id).label("total"),
@@ -121,7 +119,7 @@ async def get_compliance_score(
             await db.execute(
                 select(func.count(ComplianceCheck.id)).where(
                     ComplianceCheck.framework == framework,
-                    ComplianceCheck.passed == True,
+                    ComplianceCheck.passed ,
                 )
             )
         ).scalar() or 0
@@ -137,7 +135,7 @@ async def get_compliance_score(
     # Failed checks by severity
     severity_query = (
         select(ComplianceCheck.severity, func.count(ComplianceCheck.id))
-        .where(ComplianceCheck.passed == False)
+        .where(not ComplianceCheck.passed)
         .group_by(ComplianceCheck.severity)
     )
     severity_result = await db.execute(severity_query)
@@ -263,7 +261,7 @@ async def list_frameworks(
             await db.execute(
                 select(func.count(ComplianceCheck.id)).where(
                     ComplianceCheck.framework == framework,
-                    ComplianceCheck.passed == True,
+                    ComplianceCheck.passed ,
                 )
             )
         ).scalar() or 0
