@@ -1,16 +1,14 @@
 """Pytest configuration and fixtures for OpsCentral tests."""
 
 import asyncio
-from typing import AsyncGenerator, Generator
+from collections.abc import AsyncGenerator, Generator
 
 import pytest
 import pytest_asyncio
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-
 from src.opscentral.main import app
 from src.opscentral.models.database import Base, get_db
-
 
 # Test database URL (use SQLite for testing)
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"

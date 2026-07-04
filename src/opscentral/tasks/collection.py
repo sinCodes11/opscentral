@@ -4,15 +4,14 @@ import asyncio
 from datetime import datetime, timezone
 
 import structlog
-
-from src.opscentral.tasks import celery_app
 from src.opscentral.config import get_settings
+from src.opscentral.tasks import celery_app
 
 logger = structlog.get_logger(__name__)
 settings = get_settings()
 
 
-def run_async(coro):
+def run_async(coro) -> None:
     """Helper to run async code in Celery tasks."""
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
@@ -23,16 +22,16 @@ def run_async(coro):
 
 
 @celery_app.task(name="src.opscentral.tasks.collection.collect_metrics")
-def collect_metrics():
+def collect_metrics() -> None:
     """Collect OCI compute metrics for all instances."""
     logger.info("Starting metrics collection")
 
     async def _collect():
+        from sqlalchemy import select
         from src.opscentral.collectors.oci_metrics import OCIMetricsCollector
         from src.opscentral.collectors.oci_resources import OCIResourceCollector
         from src.opscentral.models.database import async_session_maker
         from src.opscentral.models.infrastructure import ComputeInstance
-        from sqlalchemy import select
 
         metrics_collector = OCIMetricsCollector()
         resource_collector = OCIResourceCollector()
@@ -45,8 +44,8 @@ def collect_metrics():
                 # Get or create instance record
                 result = await db.execute(
                     select(ComputeInstance).where(
-                        ComputeInstance.ocid == instance_data["ocid"]
-                    )
+                        ComputeInstance.ocid == instance_data["ocid"],
+                    ),
                 )
                 instance = result.scalar_one_or_none()
 
@@ -69,7 +68,7 @@ def collect_metrics():
 
                 # Collect metrics
                 metrics = await metrics_collector.collect_instance_metrics(
-                    instance_data["ocid"]
+                    instance_data["ocid"],
                 )
 
                 instance.cpu_utilization = metrics.get("cpu_utilization")
@@ -87,14 +86,14 @@ def collect_metrics():
 
 
 @celery_app.task(name="src.opscentral.tasks.collection.collect_alerts")
-def collect_alerts():
+def collect_alerts() -> None:
     """Collect alerts from SIEM and internal sources."""
     logger.info("Starting alert collection")
 
     async def _collect():
         from src.opscentral.collectors.mock_siem import MockSIEMCollector
-        from src.opscentral.services.alert_aggregator import AlertAggregator
         from src.opscentral.models.database import async_session_maker
+        from src.opscentral.services.alert_aggregator import AlertAggregator
 
         siem_collector = MockSIEMCollector()
 
@@ -118,13 +117,13 @@ def collect_alerts():
 
 
 @celery_app.task(name="src.opscentral.tasks.collection.run_compliance_scan")
-def run_compliance_scan():
+def run_compliance_scan() -> None:
     """Run compliance checks against OCI resources."""
     logger.info("Starting compliance scan")
 
     async def _scan():
-        from src.opscentral.services.compliance_scorer import ComplianceScorer
         from src.opscentral.models.database import async_session_maker
+        from src.opscentral.services.compliance_scorer import ComplianceScorer
 
         async with async_session_maker() as db:
             scorer = ComplianceScorer(db)
@@ -142,15 +141,18 @@ def run_compliance_scan():
 
 
 @celery_app.task(name="src.opscentral.tasks.collection.calculate_health")
-def calculate_health():
+def calculate_health() -> None:
     """Calculate and store infrastructure health score."""
     logger.info("Calculating infrastructure health score")
 
     async def _calculate():
-        from src.opscentral.models.database import async_session_maker
-        from src.opscentral.models.infrastructure import ComputeInstance, InfrastructureHealth
+        from sqlalchemy import func, select
         from src.opscentral.models.alert import Alert, AlertSeverity, AlertStatus
-        from sqlalchemy import select, func
+        from src.opscentral.models.database import async_session_maker
+        from src.opscentral.models.infrastructure import (
+            ComputeInstance,
+            InfrastructureHealth,
+        )
 
         async with async_session_maker() as db:
             # Instance counts
@@ -161,15 +163,15 @@ def calculate_health():
             running_instances = (
                 await db.execute(
                     select(func.count(ComputeInstance.id)).where(
-                        ComputeInstance.state == "RUNNING"
-                    )
+                        ComputeInstance.state == "RUNNING",
+                    ),
                 )
             ).scalar() or 0
 
             # Count unhealthy (high CPU/memory)
             unhealthy_query = select(func.count(ComputeInstance.id)).where(
                 (ComputeInstance.cpu_utilization > 90)
-                | (ComputeInstance.memory_utilization > 90)
+                | (ComputeInstance.memory_utilization > 90),
             )
             unhealthy_instances = (await db.execute(unhealthy_query)).scalar() or 0
 
@@ -179,9 +181,9 @@ def calculate_health():
                     select(func.count(Alert.id)).where(
                         Alert.severity == AlertSeverity.CRITICAL.value,
                         Alert.status.in_(
-                            [AlertStatus.NEW.value, AlertStatus.ACKNOWLEDGED.value]
+                            [AlertStatus.NEW.value, AlertStatus.ACKNOWLEDGED.value],
                         ),
-                    )
+                    ),
                 )
             ).scalar() or 0
 
@@ -190,9 +192,9 @@ def calculate_health():
                     select(func.count(Alert.id)).where(
                         Alert.severity == AlertSeverity.HIGH.value,
                         Alert.status.in_(
-                            [AlertStatus.NEW.value, AlertStatus.ACKNOWLEDGED.value]
+                            [AlertStatus.NEW.value, AlertStatus.ACKNOWLEDGED.value],
                         ),
-                    )
+                    ),
                 )
             ).scalar() or 0
 
@@ -237,19 +239,20 @@ def calculate_health():
 
 
 @celery_app.task(name="src.opscentral.tasks.collection.trigger_alert_burst")
-def trigger_alert_burst(severity: str = "critical", count: int = 5):
+def trigger_alert_burst(severity: str = "critical", count: int = 5) -> None:
     """Manually trigger an alert burst for testing.
 
     Args:
         severity: Severity level for alerts
         count: Number of alerts to generate
+
     """
     logger.info("Triggering alert burst", severity=severity, count=count)
 
     async def _trigger():
         from src.opscentral.collectors.mock_siem import MockSIEMCollector
-        from src.opscentral.services.alert_aggregator import AlertAggregator
         from src.opscentral.models.database import async_session_maker
+        from src.opscentral.services.alert_aggregator import AlertAggregator
 
         siem_collector = MockSIEMCollector()
 
@@ -258,7 +261,7 @@ def trigger_alert_burst(severity: str = "critical", count: int = 5):
 
             # Generate burst alerts
             raw_alerts = siem_collector.simulate_alert_burst(
-                severity=severity, count=count
+                severity=severity, count=count,
             )
 
             # Ingest

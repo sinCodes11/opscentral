@@ -1,10 +1,8 @@
 """OCI Resource collector for inventory management."""
 
 import asyncio
-from typing import Optional
 
 import structlog
-
 from src.opscentral.config import get_settings
 
 logger = structlog.get_logger(__name__)
@@ -44,7 +42,7 @@ class OCIResourceCollector:
 
     async def list_compute_instances(
         self,
-        compartment_ocid: Optional[str] = None,
+        compartment_ocid: str | None = None,
     ) -> list:
         """List all compute instances in a compartment.
 
@@ -53,6 +51,7 @@ class OCIResourceCollector:
 
         Returns:
             List of compute instance dictionaries
+
         """
         compartment = compartment_ocid or settings.oci_compartment_ocid
 
@@ -87,7 +86,7 @@ class OCIResourceCollector:
             logger.error("Failed to list compute instances", error=str(e))
             return self._generate_mock_instances()
 
-    async def list_vcns(self, compartment_ocid: Optional[str] = None) -> list:
+    async def list_vcns(self, compartment_ocid: str | None = None) -> list:
         """List all VCNs in a compartment."""
         compartment = compartment_ocid or settings.oci_compartment_ocid
 
@@ -115,7 +114,7 @@ class OCIResourceCollector:
             logger.error("Failed to list VCNs", error=str(e))
             return self._generate_mock_vcns()
 
-    async def list_buckets(self, compartment_ocid: Optional[str] = None) -> list:
+    async def list_buckets(self, compartment_ocid: str | None = None) -> list:
         """List all Object Storage buckets in a compartment."""
         compartment = compartment_ocid or settings.oci_compartment_ocid
 
@@ -196,7 +195,7 @@ class OCIResourceCollector:
                 "display_name": "opscentral-vcn",
                 "cidr_block": "10.0.0.0/16",
                 "state": "AVAILABLE",
-            }
+            },
         ]
 
     def _generate_mock_buckets(self) -> list:

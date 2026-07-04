@@ -5,19 +5,18 @@ infrastructure metrics, compliance scoring, and cost tracking.
 """
 
 import logging
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
-from typing import AsyncGenerator
 
 import structlog
 from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from prometheus_fastapi_instrumentator import Instrumentator
-
-from src.opscentral.config import get_settings
 from src.opscentral.api.routes import alerts, compliance, cost, infrastructure
-from src.opscentral.models.database import init_db, close_db
+from src.opscentral.config import get_settings
+from src.opscentral.models.database import close_db, init_db
 
 # Configure structured logging
 structlog.configure(
@@ -109,6 +108,7 @@ async def health_check() -> dict:
 
     Returns:
         Health status with component checks
+
     """
     from src.opscentral.models.database import check_db_connection
 

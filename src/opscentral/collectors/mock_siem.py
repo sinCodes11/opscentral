@@ -2,7 +2,6 @@
 
 import random
 from datetime import datetime, timedelta, timezone
-from typing import List
 
 import structlog
 
@@ -131,7 +130,7 @@ class MockSIEMCollector:
         self.source = "mock_siem"
         logger.info("Mock SIEM collector initialized")
 
-    def generate_alerts(self, count: int = 5) -> List[dict]:
+    def generate_alerts(self, count: int = 5) -> list[dict]:
         """Generate random security alerts for demo.
 
         Args:
@@ -139,6 +138,7 @@ class MockSIEMCollector:
 
         Returns:
             List of alert dictionaries
+
         """
         alerts = []
 
@@ -177,7 +177,7 @@ class MockSIEMCollector:
 
         # Generate random detection time (within last hour)
         detected_at = datetime.now(timezone.utc) - timedelta(
-            minutes=random.randint(1, 60)
+            minutes=random.randint(1, 60),
         )
 
         return {
@@ -194,7 +194,7 @@ class MockSIEMCollector:
             "detected_at": detected_at.isoformat(),
         }
 
-    def simulate_alert_burst(self, severity: str = "critical", count: int = 3) -> List[dict]:
+    def simulate_alert_burst(self, severity: str = "critical", count: int = 3) -> list[dict]:
         """Simulate a burst of alerts of a specific severity.
 
         Used for testing alert storm handling.
@@ -205,6 +205,7 @@ class MockSIEMCollector:
 
         Returns:
             List of alert dictionaries
+
         """
         # Filter templates by severity
         matching_templates = [

@@ -1,13 +1,11 @@
 """Alert aggregation service for normalizing and deduplicating alerts."""
 
 from datetime import datetime, timedelta, timezone
-from typing import List
 from hashlib import sha256
 
 import structlog
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from src.opscentral.models.alert import Alert, AlertSeverity, AlertStatus
 
 logger = structlog.get_logger(__name__)
@@ -40,6 +38,7 @@ class AlertAggregator:
 
         Args:
             db: Async database session
+
         """
         self.db = db
 
@@ -51,6 +50,7 @@ class AlertAggregator:
 
         Returns:
             Normalized alert dictionary matching Alert model
+
         """
         # Map common field variations
         normalized = {
@@ -90,6 +90,7 @@ class AlertAggregator:
 
         Returns:
             Normalized severity value
+
         """
         severity_lower = severity.lower().strip()
 
@@ -126,6 +127,7 @@ class AlertAggregator:
 
         Returns:
             SHA256 fingerprint string
+
         """
         components = [
             alert.get("source", ""),
@@ -145,6 +147,7 @@ class AlertAggregator:
 
         Returns:
             True if duplicate exists
+
         """
         cutoff = datetime.now(timezone.utc) - timedelta(minutes=self.DEDUP_WINDOW_MINUTES)
 
@@ -154,7 +157,7 @@ class AlertAggregator:
                 Alert.source_id.contains(fingerprint),
                 Alert.detected_at >= cutoff,
                 Alert.status != AlertStatus.RESOLVED.value,
-            )
+            ),
         )
 
         return result.scalar_one_or_none() is not None
@@ -172,6 +175,7 @@ class AlertAggregator:
 
         Returns:
             Priority score (0-150)
+
         """
         # Base score from severity
         severity = alert.get("severity", AlertSeverity.MEDIUM.value)
@@ -192,7 +196,7 @@ class AlertAggregator:
 
         return min(150, score)
 
-    async def ingest_alerts(self, raw_alerts: List[dict]) -> dict:
+    async def ingest_alerts(self, raw_alerts: list[dict]) -> dict:
         """Ingest a batch of alerts with normalization and deduplication.
 
         Args:
@@ -200,6 +204,7 @@ class AlertAggregator:
 
         Returns:
             Dictionary with counts of processed/duplicated/failed alerts
+
         """
         stats = {
             "processed": 0,

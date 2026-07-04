@@ -1,16 +1,14 @@
 """Compliance API routes for security compliance tracking."""
 
 from datetime import datetime
-from typing import List, Optional
 
 from fastapi import APIRouter, Depends, Query
 from pydantic import BaseModel
 from sqlalchemy import desc, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from src.opscentral.api.dependencies import verify_api_key
-from src.opscentral.models.infrastructure import ComplianceCheck
 from src.opscentral.models.database import get_db
+from src.opscentral.models.infrastructure import ComplianceCheck
 
 router = APIRouter()
 
@@ -21,14 +19,14 @@ class ComplianceCheckResponse(BaseModel):
     id: int
     check_id: str
     check_name: str
-    description: Optional[str] = None
+    description: str | None = None
     framework: str
-    control_id: Optional[str] = None
+    control_id: str | None = None
     passed: bool
-    resource_ocid: Optional[str] = None
+    resource_ocid: str | None = None
     resource_type: str
-    finding: Optional[str] = None
-    remediation: Optional[str] = None
+    finding: str | None = None
+    remediation: str | None = None
     severity: str
     checked_at: datetime
 
@@ -48,13 +46,13 @@ class ComplianceScoreResponse(BaseModel):
     failed_checks: int
     by_framework: dict[str, dict]
     by_severity: dict[str, int]
-    last_scan: Optional[datetime] = None
+    last_scan: datetime | None = None
 
 
 class ComplianceListResponse(BaseModel):
     """List of compliance check results."""
 
-    items: List[ComplianceCheckResponse]
+    items: list[ComplianceCheckResponse]
     total: int
 
 
@@ -87,7 +85,7 @@ async def get_compliance_score(
     # Passed checks
     passed_checks = (
         await db.execute(
-            select(func.count(ComplianceCheck.id)).where(ComplianceCheck.passed )
+            select(func.count(ComplianceCheck.id)).where(ComplianceCheck.passed ),
         )
     ).scalar() or 0
 
@@ -120,7 +118,7 @@ async def get_compliance_score(
                 select(func.count(ComplianceCheck.id)).where(
                     ComplianceCheck.framework == framework,
                     ComplianceCheck.passed ,
-                )
+                ),
             )
         ).scalar() or 0
 
@@ -172,7 +170,7 @@ async def get_compliance_score(
 
     # Get last scan time
     last_scan_result = await db.execute(
-        select(ComplianceCheck.checked_at).order_by(desc(ComplianceCheck.checked_at)).limit(1)
+        select(ComplianceCheck.checked_at).order_by(desc(ComplianceCheck.checked_at)).limit(1),
     )
     last_scan = last_scan_result.scalar_one_or_none()
 
@@ -190,9 +188,9 @@ async def get_compliance_score(
 
 @router.get("/checks", response_model=ComplianceListResponse)
 async def list_compliance_checks(
-    framework: Optional[str] = Query(default=None),
-    passed: Optional[bool] = Query(default=None),
-    severity: Optional[str] = Query(default=None),
+    framework: str | None = Query(default=None),
+    passed: bool | None = Query(default=None),
+    severity: str | None = Query(default=None),
     limit: int = Query(default=50, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
     _: bool = Depends(verify_api_key),
@@ -204,6 +202,7 @@ async def list_compliance_checks(
         passed: Filter by pass/fail status
         severity: Filter by severity level
         limit: Maximum number of results
+
     """
     query = select(ComplianceCheck)
 
@@ -236,11 +235,11 @@ async def list_compliance_checks(
     )
 
 
-@router.get("/frameworks", response_model=List[FrameworkSummary])
+@router.get("/frameworks", response_model=list[FrameworkSummary])
 async def list_frameworks(
     db: AsyncSession = Depends(get_db),
     _: bool = Depends(verify_api_key),
-) -> List[FrameworkSummary]:
+) -> list[FrameworkSummary]:
     """Get summary of compliance by framework."""
     # Get all unique frameworks
     frameworks_query = select(ComplianceCheck.framework).distinct()
@@ -252,8 +251,8 @@ async def list_frameworks(
         total = (
             await db.execute(
                 select(func.count(ComplianceCheck.id)).where(
-                    ComplianceCheck.framework == framework
-                )
+                    ComplianceCheck.framework == framework,
+                ),
             )
         ).scalar() or 0
 
@@ -262,7 +261,7 @@ async def list_frameworks(
                 select(func.count(ComplianceCheck.id)).where(
                     ComplianceCheck.framework == framework,
                     ComplianceCheck.passed ,
-                )
+                ),
             )
         ).scalar() or 0
 
@@ -275,7 +274,7 @@ async def list_frameworks(
                 passed=passed,
                 failed=total - passed,
                 score=round(score, 1),
-            )
+            ),
         )
 
     return summaries

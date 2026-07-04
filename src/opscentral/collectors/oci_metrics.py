@@ -2,10 +2,8 @@
 
 import asyncio
 from datetime import datetime, timedelta, timezone
-from typing import Optional
 
 import structlog
-
 from src.opscentral.config import get_settings
 
 logger = structlog.get_logger(__name__)
@@ -43,7 +41,7 @@ class OCIMetricsCollector:
     async def collect_instance_metrics(
         self,
         instance_ocid: str,
-        compartment_ocid: Optional[str] = None,
+        compartment_ocid: str | None = None,
     ) -> dict:
         """Collect metrics for a specific compute instance.
 
@@ -53,6 +51,7 @@ class OCIMetricsCollector:
 
         Returns:
             Dictionary with CPU, memory, and network metrics
+
         """
         compartment = compartment_ocid or settings.oci_compartment_ocid
 
@@ -96,7 +95,7 @@ class OCIMetricsCollector:
         cpu_response = await loop.run_in_executor(
             None,
             lambda: self.monitoring_client.summarize_metrics_data(
-                compartment_ocid, cpu_query
+                compartment_ocid, cpu_query,
             ),
         )
 
@@ -116,7 +115,7 @@ class OCIMetricsCollector:
         memory_response = await loop.run_in_executor(
             None,
             lambda: self.monitoring_client.summarize_metrics_data(
-                compartment_ocid, memory_query
+                compartment_ocid, memory_query,
             ),
         )
 
@@ -136,7 +135,7 @@ class OCIMetricsCollector:
         network_response = await loop.run_in_executor(
             None,
             lambda: self.monitoring_client.summarize_metrics_data(
-                compartment_ocid, network_in_query
+                compartment_ocid, network_in_query,
             ),
         )
 
@@ -159,11 +158,12 @@ class OCIMetricsCollector:
             "collected_at": datetime.now(timezone.utc).isoformat(),
         }
 
-    async def collect_all_instances(self, compartment_ocid: Optional[str] = None) -> list:
+    async def collect_all_instances(self, compartment_ocid: str | None = None) -> list:
         """Collect metrics for all instances in a compartment.
 
         Returns:
             List of dictionaries with instance OCID and metrics
+
         """
         # This would iterate through all instances and collect metrics
         # For now, return empty list - actual implementation would use

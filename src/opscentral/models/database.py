@@ -1,18 +1,17 @@
 """Database connection and session management."""
 
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
 
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
-
 from src.opscentral.config import get_settings
 
 settings = get_settings()
 
 # Convert sync URL to async
 database_url = settings.database_url.replace(
-    "postgresql://", "postgresql+asyncpg://"
+    "postgresql://", "postgresql+asyncpg://",
 )
 
 # Create async engine
@@ -35,7 +34,6 @@ async_session_maker = async_sessionmaker(
 class Base(DeclarativeBase):
     """Base class for all SQLAlchemy models."""
 
-    pass
 
 
 async def init_db() -> None:

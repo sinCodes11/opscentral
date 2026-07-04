@@ -1,17 +1,15 @@
 """Infrastructure API routes for compute and health monitoring."""
 
 from datetime import datetime, timezone
-from typing import List, Optional
 
 from fastapi import APIRouter, Depends, Query
 from pydantic import BaseModel
 from sqlalchemy import desc, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from src.opscentral.api.dependencies import verify_api_key
 from src.opscentral.models.alert import Alert, AlertSeverity, AlertStatus
-from src.opscentral.models.infrastructure import ComputeInstance, InfrastructureHealth
 from src.opscentral.models.database import get_db
+from src.opscentral.models.infrastructure import ComputeInstance, InfrastructureHealth
 
 router = APIRouter()
 
@@ -26,13 +24,13 @@ class ComputeInstanceResponse(BaseModel):
     availability_domain: str
     region: str
     state: str
-    ocpus: Optional[float] = None
-    memory_gb: Optional[float] = None
-    cpu_utilization: Optional[float] = None
-    memory_utilization: Optional[float] = None
-    network_bytes_in: Optional[int] = None
-    network_bytes_out: Optional[int] = None
-    metrics_updated_at: Optional[datetime] = None
+    ocpus: float | None = None
+    memory_gb: float | None = None
+    cpu_utilization: float | None = None
+    memory_utilization: float | None = None
+    network_bytes_in: int | None = None
+    network_bytes_out: int | None = None
+    metrics_updated_at: datetime | None = None
 
     class Config:
         """Pydantic config."""
@@ -43,7 +41,7 @@ class ComputeInstanceResponse(BaseModel):
 class ComputeListResponse(BaseModel):
     """List of compute instances."""
 
-    items: List[ComputeInstanceResponse]
+    items: list[ComputeInstanceResponse]
     total: int
 
 
@@ -77,7 +75,7 @@ class ResourceSummaryResponse(BaseModel):
 
 @router.get("/compute", response_model=ComputeListResponse)
 async def list_compute_instances(
-    state: Optional[str] = Query(default=None),
+    state: str | None = Query(default=None),
     limit: int = Query(default=50, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
     _: bool = Depends(verify_api_key),
@@ -87,6 +85,7 @@ async def list_compute_instances(
     Args:
         state: Filter by instance state (RUNNING, STOPPED, etc.)
         limit: Maximum number of instances to return
+
     """
     query = select(ComputeInstance)
 
@@ -125,7 +124,7 @@ async def get_infrastructure_health(
     """
     # Get latest health snapshot or calculate
     result = await db.execute(
-        select(InfrastructureHealth).order_by(desc(InfrastructureHealth.recorded_at)).limit(1)
+        select(InfrastructureHealth).order_by(desc(InfrastructureHealth.recorded_at)).limit(1),
     )
     health = result.scalar_one_or_none()
 
@@ -168,8 +167,8 @@ async def get_resource_summary(
     running_instances = (
         await db.execute(
             select(func.count(ComputeInstance.id)).where(
-                ComputeInstance.state == "RUNNING"
-            )
+                ComputeInstance.state == "RUNNING",
+            ),
         )
     ).scalar() or 0
 
@@ -179,8 +178,8 @@ async def get_resource_summary(
     open_alerts = (
         await db.execute(
             select(func.count(Alert.id)).where(
-                Alert.status.in_([AlertStatus.NEW.value, AlertStatus.ACKNOWLEDGED.value])
-            )
+                Alert.status.in_([AlertStatus.NEW.value, AlertStatus.ACKNOWLEDGED.value]),
+            ),
         )
     ).scalar() or 0
 
@@ -199,7 +198,7 @@ def _calculate_status(score: float) -> str:
     """Determine health status from score."""
     if score >= 80:
         return "healthy"
-    elif score >= 50:
+    if score >= 50:
         return "degraded"
     return "critical"
 
@@ -214,14 +213,14 @@ async def _calculate_health_score(db: AsyncSession) -> HealthScoreResponse:
     running_instances = (
         await db.execute(
             select(func.count(ComputeInstance.id)).where(
-                ComputeInstance.state == "RUNNING"
-            )
+                ComputeInstance.state == "RUNNING",
+            ),
         )
     ).scalar() or 0
 
     # Count unhealthy (high CPU/memory)
     unhealthy_query = select(func.count(ComputeInstance.id)).where(
-        (ComputeInstance.cpu_utilization > 90) | (ComputeInstance.memory_utilization > 90)
+        (ComputeInstance.cpu_utilization > 90) | (ComputeInstance.memory_utilization > 90),
     )
     unhealthy_instances = (await db.execute(unhealthy_query)).scalar() or 0
 
@@ -231,7 +230,7 @@ async def _calculate_health_score(db: AsyncSession) -> HealthScoreResponse:
             select(func.count(Alert.id)).where(
                 Alert.severity == AlertSeverity.CRITICAL.value,
                 Alert.status.in_([AlertStatus.NEW.value, AlertStatus.ACKNOWLEDGED.value]),
-            )
+            ),
         )
     ).scalar() or 0
 
@@ -240,7 +239,7 @@ async def _calculate_health_score(db: AsyncSession) -> HealthScoreResponse:
             select(func.count(Alert.id)).where(
                 Alert.severity == AlertSeverity.HIGH.value,
                 Alert.status.in_([AlertStatus.NEW.value, AlertStatus.ACKNOWLEDGED.value]),
-            )
+            ),
         )
     ).scalar() or 0
 

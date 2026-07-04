@@ -161,5 +161,5 @@ MIT — see LICENSE for details.
 ## Author
 
 **Daniel Gregg Jr** — Cloud Infrastructure Engineer
-- Portfolio: [daniel-eportfolio.web.app](https://daniel-eportfolio.web.app)
+
 - LinkedIn: [linkedin.com/in/daniel-sin-1881ske89](https://linkedin.com/in/daniel-sin-1881ske89)

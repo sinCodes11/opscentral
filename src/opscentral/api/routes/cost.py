@@ -1,11 +1,9 @@
 """Cost API routes for OCI cost tracking and analysis."""
 
-from datetime import datetime, date, timezone
-from typing import List
+from datetime import date, datetime, timezone
 
 from fastapi import APIRouter, Depends, Query
 from pydantic import BaseModel
-
 from src.opscentral.api.dependencies import verify_api_key
 
 router = APIRouter()
@@ -35,8 +33,8 @@ class CostSummaryResponse(BaseModel):
     month_over_month_change: float
     projected_month_end: float
     currency: str
-    by_service: List[ServiceCost]
-    daily_trend: List[CostDataPoint]
+    by_service: list[ServiceCost]
+    daily_trend: list[CostDataPoint]
     last_updated: datetime
 
 
@@ -77,7 +75,7 @@ async def get_cost_summary(
             CostDataPoint(
                 date=day.date(),
                 amount=round(amount, 2),
-            )
+            ),
         )
 
     current_total = sum(d.amount for d in daily_trend)
@@ -104,7 +102,7 @@ async def get_cost_summary(
         current_month_total=round(current_total, 2),
         previous_month_total=round(previous_total, 2),
         month_over_month_change=round(
-            ((current_total - previous_total) / previous_total * 100) if previous_total > 0 else 0, 1
+            ((current_total - previous_total) / previous_total * 100) if previous_total > 0 else 0, 1,
         ),
         projected_month_end=round(projected_total, 2),
         currency="USD",
@@ -123,6 +121,7 @@ async def get_budget_status(
 
     Args:
         budget: Monthly budget amount in USD
+
     """
     today = datetime.now(timezone.utc)
 
@@ -163,15 +162,16 @@ async def get_budget_status(
 async def get_cost_trend(
     days: int = Query(default=30, ge=7, le=90),
     _: bool = Depends(verify_api_key),
-) -> List[CostDataPoint]:
+) -> list[CostDataPoint]:
     """Get daily cost trend for the specified number of days.
 
     Args:
         days: Number of days of history to return (7-90)
+
     """
     today = datetime.now(timezone.utc)
-    from datetime import timedelta
     import random
+    from datetime import timedelta
 
     trend = []
     base_cost = 15.0
@@ -185,7 +185,7 @@ async def get_cost_trend(
             CostDataPoint(
                 date=day.date(),
                 amount=round(max(0, amount), 2),
-            )
+            ),
         )
 
     return trend

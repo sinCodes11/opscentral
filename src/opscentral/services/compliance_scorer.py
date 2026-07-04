@@ -1,11 +1,9 @@
 """Compliance scoring service for OCI security posture assessment."""
 
 from datetime import datetime, timezone
-from typing import List, Optional
 
 import structlog
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from src.opscentral.models.infrastructure import ComplianceCheck
 
 logger = structlog.get_logger(__name__)
@@ -139,10 +137,11 @@ class ComplianceScorer:
 
         Args:
             db: Async database session
+
         """
         self.db = db
 
-    async def run_all_checks(self, compartment_ocid: Optional[str] = None) -> dict:
+    async def run_all_checks(self, compartment_ocid: str | None = None) -> dict:
         """Run all compliance checks and store results.
 
         Args:
@@ -150,6 +149,7 @@ class ComplianceScorer:
 
         Returns:
             Summary of check results
+
         """
         results = {
             "total": 0,
@@ -191,7 +191,7 @@ class ComplianceScorer:
 
         return results
 
-    async def _run_check(self, check_def: dict, compartment_ocid: Optional[str]) -> dict:
+    async def _run_check(self, check_def: dict, compartment_ocid: str | None) -> dict:
         """Run a single compliance check.
 
         Note: In demo mode, checks pass/fail randomly with realistic distribution.
@@ -203,6 +203,7 @@ class ComplianceScorer:
 
         Returns:
             Check result dictionary
+
         """
         import random
 
@@ -288,24 +289,29 @@ class ComplianceScorer:
             "cis-oci-2.1": "Modify default security list to restrict inbound traffic to required ports only",
             "cis-oci-2.2": "Create Network Security Groups for fine-grained access control",
             "cis-oci-3.1": "Enable audit logging via OCI Console > Governance > Audit",
-            "cis-oci-4.1": "Set bucket visibility to private via Object Storage > Bucket > Edit Visibility",
+            "cis-oci-4.1": "Set bucket visibility to private via Object Storage >" \
+                           " Bucket > Edit Visibility",
             "cis-oci-4.2": "Enable versioning via Object Storage > Bucket > Edit > Enable Versioning",
-            "nist-ac-2": "Review and update IAM policies to implement proper account management",
+            "nist-ac-2": "Review and update IAM policies to implement proper account" \
+                         " management",
             "nist-ac-6": "Audit IAM policies and remove overly permissive statements",
-            "nist-au-2": "Configure audit retention and ensure all required events are captured",
-            "nist-sc-7": "Review VCN security lists and NSGs to ensure proper boundary protection",
+            "nist-au-2": "Configure audit retention and ensure all required events" \
+                         " are captured",
+            "nist-sc-7": "Review VCN security lists and NSGs to ensure proper boundary" \
+                         " protection",
             "nist-sc-28": "Enable encryption for all storage volumes using OCI Vault keys",
         }
 
         return remediations.get(
             check_def["check_id"],
-            "Review OCI documentation for remediation guidance"
+            "Review OCI documentation for remediation guidance",
         )
 
-    def get_check_definitions(self) -> List[dict]:
+    def get_check_definitions(self) -> list[dict]:
         """Get all check definitions.
 
         Returns:
             List of check definition dictionaries
+
         """
         return self.CHECKS

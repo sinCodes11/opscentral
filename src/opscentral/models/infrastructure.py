@@ -2,11 +2,9 @@
 
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Optional
 
 from sqlalchemy import DateTime, Float, Index, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
-
 from src.opscentral.models.database import Base
 
 
@@ -44,14 +42,14 @@ class ComputeInstance(Base):
     state: Mapped[str] = mapped_column(String(50), default=InstanceState.RUNNING.value)
 
     # Resource allocation
-    ocpus: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
-    memory_gb: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    ocpus: Mapped[float | None] = mapped_column(Float, nullable=True)
+    memory_gb: Mapped[float | None] = mapped_column(Float, nullable=True)
 
     # Current metrics (updated by collector)
-    cpu_utilization: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
-    memory_utilization: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
-    network_bytes_in: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
-    network_bytes_out: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    cpu_utilization: Mapped[float | None] = mapped_column(Float, nullable=True)
+    memory_utilization: Mapped[float | None] = mapped_column(Float, nullable=True)
+    network_bytes_in: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    network_bytes_out: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
     # Timestamps
     created_at: Mapped[datetime] = mapped_column(
@@ -65,7 +63,7 @@ class ComputeInstance(Base):
         onupdate=lambda: datetime.now(timezone.utc),
         nullable=False,
     )
-    metrics_updated_at: Mapped[Optional[datetime]] = mapped_column(
+    metrics_updated_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True),
         nullable=True,
     )
@@ -128,18 +126,18 @@ class ComplianceCheck(Base):
     # Check identification
     check_id: Mapped[str] = mapped_column(String(100), nullable=False)
     check_name: Mapped[str] = mapped_column(String(255), nullable=False)
-    description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     # Framework alignment
     framework: Mapped[str] = mapped_column(String(50), nullable=False)  # CIS, NIST, etc.
-    control_id: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    control_id: Mapped[str | None] = mapped_column(String(50), nullable=True)
 
     # Result
     passed: Mapped[bool] = mapped_column(default=False)
-    resource_ocid: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    resource_ocid: Mapped[str | None] = mapped_column(String(255), nullable=True)
     resource_type: Mapped[str] = mapped_column(String(100), nullable=False)
-    finding: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
-    remediation: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    finding: Mapped[str | None] = mapped_column(Text, nullable=True)
+    remediation: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     # Severity if failed
     severity: Mapped[str] = mapped_column(String(20), default="medium")

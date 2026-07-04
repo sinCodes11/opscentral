@@ -1,7 +1,6 @@
 """Celery tasks for OpsCentral background processing."""
 
 from celery import Celery
-
 from src.opscentral.config import get_settings
 
 settings = get_settings()

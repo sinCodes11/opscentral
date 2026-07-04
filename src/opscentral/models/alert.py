@@ -2,11 +2,9 @@
 
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Optional
 
 from sqlalchemy import DateTime, Index, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
-
 from src.opscentral.models.database import Base
 
 
@@ -43,7 +41,7 @@ class Alert(Base):
 
     # Core alert fields
     title: Mapped[str] = mapped_column(String(255), nullable=False)
-    description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
     severity: Mapped[str] = mapped_column(
         String(20),
         default=AlertSeverity.MEDIUM.value,
@@ -57,17 +55,17 @@ class Alert(Base):
 
     # Source tracking
     source: Mapped[str] = mapped_column(String(50), nullable=False)  # splunk, oci, internal
-    source_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
-    source_url: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+    source_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    source_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
 
     # Categorization
-    category: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
-    rule_name: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    category: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    rule_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
     # Affected resources
-    resource_type: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
-    resource_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
-    resource_name: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    resource_type: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    resource_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    resource_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
     # Timestamps
     detected_at: Mapped[datetime] = mapped_column(
@@ -75,11 +73,11 @@ class Alert(Base):
         default=lambda: datetime.now(timezone.utc),
         nullable=False,
     )
-    acknowledged_at: Mapped[Optional[datetime]] = mapped_column(
+    acknowledged_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True),
         nullable=True,
     )
-    resolved_at: Mapped[Optional[datetime]] = mapped_column(
+    resolved_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True),
         nullable=True,
     )
@@ -96,7 +94,7 @@ class Alert(Base):
     )
 
     # User tracking
-    acknowledged_by: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    acknowledged_by: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
     # Indexes for common queries
     __table_args__ = (

@@ -3,12 +3,10 @@
 import asyncio
 from logging.config import fileConfig
 
+from alembic import context
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
-
-from alembic import context
-
 from src.opscentral.config import get_settings
 from src.opscentral.models.database import Base
 
@@ -25,7 +23,7 @@ target_metadata = Base.metadata
 # Get database URL from settings
 settings = get_settings()
 database_url = settings.database_url.replace(
-    "postgresql://", "postgresql+asyncpg://"
+    "postgresql://", "postgresql+asyncpg://",
 )
 
 
