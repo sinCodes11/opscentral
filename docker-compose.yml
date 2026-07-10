@@ -33,21 +33,21 @@ services:
     restart: unless-stopped
 
   # Celery Worker
-  worker:
+
+  celery-worker:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: opscentral-worker
-    command: celery -A src.opscentral.tasks.celery_app worker --loglevel=info
+    container_name: opscentral-celery-worker
+    command: celery -A app.celery.worker worker -l INFO
     environment:
-      - DATABASE_URL=postgresql://opscentral:${POSTGRES_PASSWORD}@postgres:5432/opscentral
       - REDIS_URL=redis://redis:6379/0
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - OCI_TENANCY_OCID=${OCI_TENANCY_OCID}
       - OCI_USER_OCID=${OCI_USER_OCID}
       - OCI_COMPARTMENT_OCID=${OCI_COMPARTMENT_OCID}
       - OCI_REGION=${OCI_REGION:-us-ashburn-1}
     depends_on:
-      - api
       - redis
       - postgres
     networks:
@@ -55,20 +55,7 @@ services:
     restart: unless-stopped
 
   # Celery Beat Scheduler
-  beat:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: opscentral-beat
-    command: celery -A src.opscentral.tasks.celery_app beat --loglevel=info
-    environment:
-      - DATABASE_URL=postgresql://opscentral:${POSTGRES_PASSWORD}@postgres:5432/opscentral
-      - REDIS_URL=redis://redis:6379/0
-    depends_on:
-      - worker
-    networks:
-      - opscentral-net
-    restart: unless-stopped
+
 
   # PostgreSQL Database
   postgres:
