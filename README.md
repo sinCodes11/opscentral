@@ -1,8 +1,13 @@
-# OpsCentral — Unified SOC Dashboard
-
 <div align="center">
-  <img src="assets/banner.svg" width="100%" />
+  <img src="assets/banner.svg" width="100%"/>
 </div>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/stack-FastAPI%20%2F%20Celery-ff0033?style=flat-square" alt="stack">
+  <img src="https://img.shields.io/badge/dashboards-Grafana%20%2F%20Prometheus-ff8800?style=flat-square" alt="dashboards">
+  <img src="https://img.shields.io/badge/deploy-Docker-2496ED?style=flat-square" alt="deploy">
+</p>
+
 
 <p align="center">
   <img src="https://img.shields.io/badge/FastAPI-Python-00b4d8?style=flat-square" alt="FastAPI">
